@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Step Counter</title>
+    <!-- Tailwind CSS for a clean, mobile-first design -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Use Inter font from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+  <script type="module" crossorigin src="/assets/index-eENlg3rQ.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- Firebase SDKs -->
+
+    <!-- Main App Container -->
+    <div class="bg-white rounded-xl shadow-lg p-8 w-full max-w-sm text-center">
+        <h1 class="text-3xl font-bold mb-2 text-gray-800">Step Counter</h1>
+        <p class="text-gray-500 mb-6">Your daily progress</p>
+
+        <!-- Step Counter Display -->
+        <div class="flex flex-col items-center justify-center bg-gray-50 p-6 rounded-lg mb-6">
+            <span id="step-count" class="text-6xl font-extrabold text-blue-600 animate-pulse-once">0</span>
+            <p class="text-xl text-gray-600 mt-2">Steps</p>
+        </div>
+
+        <!-- Status and User ID -->
+        <p id="status-message" class="text-sm text-gray-600 mb-4">Initializing...</p>
+        <p class="text-xs text-gray-400 mb-4">Your User ID: <span id="user-id">Loading...</span></p>
+
+        <!-- Control Buttons -->
+        <div class="flex space-x-4">
+            <button id="start-button" class="flex-1 px-6 py-3 bg-blue-600 text-white rounded-full font-semibold shadow-md hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
+                Start Counting
+            </button>
+            <button id="stop-button" class="flex-1 px-6 py-3 bg-red-500 text-white rounded-full font-semibold shadow-md hover:bg-red-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
+                Stop Counting
+            </button>
+        </div>
+    </div>
+</body>
+</html>
