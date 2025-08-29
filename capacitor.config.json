@@ -1,0 +1,10 @@
+{
+  "appId": "com.mridushman.stepcounter",
+  "appName": "stepcounter",
+  "webDir": "dist",
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": false
+    }
+  }
+}
