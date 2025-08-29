@@ -28,29 +28,22 @@
                 <p class="text-sm font-medium text-indigo-600 uppercase tracking-wide">Steps Today</p>
                 <p id="step-count" class="text-6xl font-extrabold text-indigo-700 mt-2">0</p>
             </div>
-            
-            <button id="add-step-btn" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-xl hover:bg-indigo-700 transition duration-300 transform hover:scale-105 shadow-lg">
-                <span class="text-xl">+1 Step</span>
-            </button>
         </div>
     </div>
 
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- IMPORTANT: PASTE YOUR FIREBASE CONFIG HERE ---
-        // You need to replace the placeholder below with your actual Firebase config object.
-        // It should look like: const firebaseConfig = { apiKey: "...", ... };
         const firebaseConfig = {
-           apiKey: "AIzaSyB8cKvTGY-dGfC_Hj7quM_BN8GYfpnBE6g",
-  authDomain: "step-counter-dfa03.firebaseapp.com",
-  projectId: "step-counter-dfa03",
-  storageBucket: "step-counter-dfa03.firebasestorage.app",
-  messagingSenderId: "28666344542",
-  appId: "1:28666344542:web:eebb589b662868ac0eb0cf"
+            apiKey: "AIzaSyB8cKvTGY-dGfC_Hj7quM_BN8GYfpnBE6g",
+            authDomain: "step-counter-dfa03.firebaseapp.com",
+            projectId: "step-counter-dfa03",
+            storageBucket: "step-counter-dfa03.firebasestorage.app",
+            messagingSenderId: "28666344542",
+            appId: "1:28666344542:web:eebb589b662868ac0eb0cf"
         };
 
         const appId = 'step-counter-app';
@@ -63,44 +56,53 @@
         const statusEl = document.getElementById('status');
         const stepDisplayEl = document.getElementById('step-display');
         const stepCountEl = document.getElementById('step-count');
-        const addStepBtn = document.getElementById('add-step-btn');
+        const addStepBtn = document.getElementById('add-step-btn'); // This element is no longer used but kept for simplicity
+
+        // Variables for motion detection
+        let lastZ = 0;
+        let threshold = 5; // Adjust this value based on sensitivity
+        let stepCount = 0;
+        let lastStepTime = 0;
+        const cooldown = 300; // milliseconds to prevent double-counting
 
         // Function to handle database connection
         async function connectToDb() {
             try {
-                // Check if firebaseConfig is valid
                 if (!firebaseConfig || !firebaseConfig.projectId) {
                     statusEl.textContent = 'Error: Firebase config not found. Please add your config to the code.';
                     return;
                 }
 
-                // Initialize Firebase and get service instances
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
                 
-                // Sign in anonymously if no auth token is available
-                // In a production app, you might use a different authentication method
                 await signInAnonymously(auth);
 
-                // Wait for auth state to be ready
                 onAuthStateChanged(auth, async (user) => {
                     if (user) {
                         userId = user.uid;
-                        statusEl.textContent = 'Ready! Tap to add steps.';
+                        statusEl.textContent = 'Ready! Start moving.';
                         stepDisplayEl.classList.remove('hidden');
                         
-                        // Set up a real-time listener for the user's steps
                         const userDocRef = doc(db, `/artifacts/${appId}/users/${userId}/steps/today`);
                         onSnapshot(userDocRef, (docSnap) => {
                             if (docSnap.exists()) {
                                 const data = docSnap.data();
                                 const steps = data.count || 0;
+                                stepCount = steps; // Sync local counter with Firestore
                                 stepCountEl.textContent = steps;
                             } else {
                                 stepCountEl.textContent = 0;
                             }
                         });
+
+                        // Start listening for device motion
+                        if (window.DeviceMotionEvent) {
+                            window.addEventListener('devicemotion', handleMotion);
+                        } else {
+                            statusEl.textContent = 'Device motion sensor not available. Step tracking disabled.';
+                        }
                     }
                 });
 
@@ -110,36 +112,39 @@
             }
         }
 
-        // Add a click listener to the button
-        addStepBtn.addEventListener('click', async () => {
+        // Handle device motion event
+        async function handleMotion(event) {
+            const acceleration = event.accelerationIncludingGravity;
+            if (!acceleration) return;
+
+            const currentZ = acceleration.z;
+            const diff = Math.abs(currentZ - lastZ);
+
+            if (diff > threshold && (Date.now() - lastStepTime) > cooldown) {
+                lastStepTime = Date.now();
+                await updateStepCount(stepCount + 1);
+            }
+            lastZ = currentZ;
+        }
+
+        // Update step count in Firestore
+        async function updateStepCount(newCount) {
             if (!userId) {
                 statusEl.textContent = 'Please wait, app is not ready yet.';
                 return;
             }
 
-            // Reference to the steps document
             const today = new Date().toISOString().split('T')[0];
             const userDocRef = doc(db, `/artifacts/${appId}/users/${userId}/steps/today`);
 
             try {
-                // Get the current document data
-                const docSnap = await getDoc(userDocRef);
-                let currentSteps = 0;
-
-                if (docSnap.exists()) {
-                    currentSteps = docSnap.data().count || 0;
-                }
-
-                // Increment the step count and update the document
-                await setDoc(userDocRef, { count: currentSteps + 1, lastUpdated: new Date() }, { merge: true });
-
+                await setDoc(userDocRef, { count: newCount, lastUpdated: new Date() }, { merge: true });
             } catch (e) {
-                console.error("Error adding step:", e);
-                statusEl.textContent = 'Error adding step. See console.';
+                console.error("Error updating step count:", e);
+                statusEl.textContent = 'Error updating step count. See console.';
             }
-        });
+        }
 
-        // Start the process on page load
         window.onload = connectToDb;
     </script>
 </body>
