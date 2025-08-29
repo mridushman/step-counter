@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -56,14 +56,14 @@
         const statusEl = document.getElementById('status');
         const stepDisplayEl = document.getElementById('step-display');
         const stepCountEl = document.getElementById('step-count');
-        const addStepBtn = document.getElementById('add-step-btn'); // This element is no longer used but kept for simplicity
+        const addStepBtn = document.getElementById('add-step-btn');
 
         // Variables for motion detection
         let lastZ = 0;
-        let threshold = 5; // Adjust this value based on sensitivity
+        let threshold = 1.5; // Lowered to be more sensitive to walking motion
         let stepCount = 0;
         let lastStepTime = 0;
-        const cooldown = 300; // milliseconds to prevent double-counting
+        const cooldown = 500; // Increased to prevent double-counting with a lower threshold
 
         // Function to handle database connection
         async function connectToDb() {
@@ -90,14 +90,13 @@
                             if (docSnap.exists()) {
                                 const data = docSnap.data();
                                 const steps = data.count || 0;
-                                stepCount = steps; // Sync local counter with Firestore
+                                stepCount = steps;
                                 stepCountEl.textContent = steps;
                             } else {
                                 stepCountEl.textContent = 0;
                             }
                         });
 
-                        // Start listening for device motion
                         if (window.DeviceMotionEvent) {
                             window.addEventListener('devicemotion', handleMotion);
                         } else {
