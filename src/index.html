@@ -73,8 +73,7 @@
         // Step Counter Variables
         let stepCount = 0;
         let lastTimestamp = 0;
-        let lastY = 0;
-        let stepDetected = false;
+        let lastZ = 0; // We'll now use the Z-axis for a more stable step count.
         let isCounting = false;
         let stepCounterInterval = null;
 
@@ -164,29 +163,28 @@
             document.getElementById('stop-button').disabled = true;
         };
 
-        // Simple step detection algorithm
+        // A more robust step detection algorithm
         const handleMotion = (event) => {
             const acceleration = event.accelerationIncludingGravity;
-            const y = acceleration.y; // Use y-axis for up/down motion
-            const threshold = 1.5; // Sensitivity threshold for a step
+            const z = acceleration.z; // Use z-axis for forward/backward motion
+            const threshold = 1; // A better sensitivity for the z-axis
             const minTimeBetweenSteps = 250; // Milliseconds to prevent double-counting
             const now = Date.now();
-
-            // A step is detected when the y-acceleration changes from negative to positive
-            // and exceeds a threshold, and enough time has passed since the last step.
-            if (y > threshold && lastY < -threshold && (now - lastTimestamp) > minTimeBetweenSteps) {
-                if (!stepDetected) {
+        
+            // We'll detect a step by looking for a peak in acceleration.
+            // A peak is a point where the acceleration changes direction
+            // and has a value greater than the threshold.
+            if ((z > threshold && lastZ <= threshold) || (z < -threshold && lastZ >= -threshold)) {
+                if ((now - lastTimestamp) > minTimeBetweenSteps) {
                     stepCount++;
                     document.getElementById('step-count').textContent = stepCount;
                     saveSteps(stepCount); // Save to Firestore
                     lastTimestamp = now;
-                    stepDetected = true;
                 }
-            } else {
-                stepDetected = false;
             }
-            lastY = y;
+            lastZ = z;
         };
+        
 
         // Make functions globally available for buttons
         window.startCounting = startCounting;
