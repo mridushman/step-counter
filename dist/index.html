@@ -4,47 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Step Counter</title>
-    <!-- Tailwind CSS for a clean, mobile-first design -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Use Inter font from Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
         body {
             font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
         }
     </style>
-  <script type="module" crossorigin src="/assets/index-CjBoifrh.js"></script>
+  <script type="module" crossorigin src="/assets/index-BlBXy8my.js"></script>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-4">
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div id="app" class="bg-white shadow-xl rounded-2xl p-8 max-w-sm w-full text-center space-y-6">
+        <h1 class="text-4xl font-bold text-indigo-600">Step Tracker</h1>
+        <p class="text-gray-500">Track your progress and stay active.</p>
 
-    <!-- Firebase SDKs -->
-
-    <!-- Main App Container -->
-    <div class="bg-white rounded-xl shadow-lg p-8 w-full max-w-sm text-center">
-        <h1 class="text-3xl font-bold mb-2 text-gray-800">Step Counter</h1>
-        <p class="text-gray-500 mb-6">Your daily progress</p>
-
-        <!-- Step Counter Display -->
-        <div class="flex flex-col items-center justify-center bg-gray-50 p-6 rounded-lg mb-6">
-            <span id="step-count" class="text-6xl font-extrabold text-blue-600 animate-pulse-once">0</span>
-            <p class="text-xl text-gray-600 mt-2">Steps</p>
+        <div id="status" class="text-sm text-gray-400">
+            Initializing...
         </div>
 
-        <!-- Status and User ID -->
-        <p id="status-message" class="text-sm text-gray-600 mb-4">Initializing...</p>
-        <p class="text-xs text-gray-400 mb-4">Your User ID: <span id="user-id">Loading...</span></p>
-
-        <!-- Control Buttons -->
-        <div class="flex space-x-4">
-            <button id="start-button" class="flex-1 px-6 py-3 bg-blue-600 text-white rounded-full font-semibold shadow-md hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
-                Start Counting
-            </button>
-            <button id="stop-button" class="flex-1 px-6 py-3 bg-red-500 text-white rounded-full font-semibold shadow-md hover:bg-red-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
-                Stop Counting
+        <div id="step-display" class="hidden">
+            <div class="bg-indigo-100 rounded-xl p-6 mb-4">
+                <p class="text-sm font-medium text-indigo-600 uppercase tracking-wide">Steps Today</p>
+                <p id="step-count" class="text-6xl font-extrabold text-indigo-700 mt-2">0</p>
+            </div>
+            
+            <button id="add-step-btn" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-xl hover:bg-indigo-700 transition duration-300 transform hover:scale-105 shadow-lg">
+                <span class="text-xl">+1 Step</span>
             </button>
         </div>
     </div>
+
+    <!-- Firebase SDK -->
 </body>
 </html>
